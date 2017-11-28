@@ -1,0 +1,9 @@
+*.txt
+# Exclude every virtual environment folder (name beginning with "venv").
+venv*
+# Exclude folder for the IDE PyCharm.
+.idea
+# Exclude python bytecode files
+*.pyc
+# Exclude files with filenames starting with "try", while those are just for test temporary test purposes.
+try*.py
