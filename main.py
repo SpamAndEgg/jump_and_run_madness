@@ -1,6 +1,7 @@
 import pygame
 import time
 import random
+from math import floor
 
 # Initiate pygame (First thing you have to do).
 pygame.init()
@@ -80,6 +81,8 @@ def collision_check_ground(this_object):
 class Player:
     def __init__(self, x_pos, y_pos):
         self.x_pos = x_pos
+        # Max ever reached x position in level.
+        self.x_pos_max = x_pos
         self.y_pos = y_pos
         self.x_change = []
         self.y_change = []
@@ -111,6 +114,9 @@ class Player:
         self.x_pos += self.x_velocity
         self.y_pos += self.y_velocity
         self.collision_check()
+        # Update max. ever reached x position.
+        if self.x_pos > self.x_pos_max:
+            self.x_pos_max = self.x_pos
         # Make sure the character won't leave the screen.
         if self.x_pos < 0:
             self.x_pos = 0
@@ -185,6 +191,7 @@ class Enemy:
         # If the hero jumped on the monsters head, it dies.
         if is_headjump:
             self.is_dead = True
+            level.score += 1000
             self.x_velocity = 0
             # Even out the hight differences of the two pictures for alive and dead monster.
             #self.y_pos += monster_height - monster_height_dead
@@ -254,6 +261,7 @@ class Level:
         self.ground = []
         self.active_ground = []
         self.x_pos = 0
+        self.score = 0
 
     # Add a new ground box to the level.
     def add_ground(self, new_ground):
@@ -298,6 +306,7 @@ def Text_object(text, font):
     Text_surface = font.render(text, True, black)
     return Text_surface, Text_surface.get_rect()
 
+
 def display_message(text_to_display):
     text_style = pygame.font.Font("data/SEASRN__.ttf", 12)
     Text_surface, Text_rectangle = Text_object(text_to_display, text_style)
@@ -309,6 +318,12 @@ def display_message(text_to_display):
     time.sleep(2)
     game_loop()
 
+
+def display_game_score(score):
+    text_style = pygame.font.Font("data/SEASRN__.ttf", 12)
+    Text_surface, Text_rectangle = Text_object(str(score), text_style)
+    Text_rectangle.center = ((display_width/9), (display_height/9))
+    Game_display.blit(Text_surface, Text_rectangle)
 
 
 # Define colors
@@ -434,6 +449,10 @@ def game_loop():
         # Update monster positions.
         for i_monster in monster:
             i_monster.draw()
+
+        # Update game score.
+        game_score = player.x_pos_max - x_character + level.score
+        display_game_score(floor(game_score))
 
         # Show new frame on screen. update allows to update single parameters if given as input parameters, otherwise it
         # updates the whole screen. Alternatively you could use the flip function, which always updates the whole screen.
