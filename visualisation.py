@@ -17,29 +17,40 @@ def start(this_conv_frame):
 
 
 # CREATING TEST ANIMATIONS
-# def start_animation():
-#
-#     def get_matrix():
-#         arr = np.random.randint(0, 256, x_size * y_size)
-#         arr.resize((x_size, y_size))
-#         time.sleep(0.5)
-#         return arr
-#
-#     def update(frame):
-#         """ A simple random walk with memory """
-#         arr = get_matrix()
-#         img.set_data(arr)
-#         return img
-#
-#     def init():
-#         arr = get_matrix()
-#         img.set_data(arr)
-#
-#     fig, ax = plt.subplots(1, 1)
-#     arr = get_matrix()
-#     img = plt.imshow(arr, cmap='gist_gray_r', vmin=0, vmax=255)
-#     ani = FuncAnimation(fig, update, init_func=init, blit=False)
-#     plt.show()
-#
-# if __name__ == '__main__':
-#     start_animation()
+def start_animation():
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import time
+    from matplotlib.animation import FuncAnimation
+
+    x_size = 20
+    y_size = 30
+
+    def get_matrix():
+        arr = np.random.randint(0, 256, x_size * y_size)
+        arr.resize((x_size, y_size))
+        return arr
+
+    def update(frame):
+        """ A simple random walk with memory """
+        arr = get_matrix()
+        img.set_data(arr)
+
+    def init():
+        arr = get_matrix()
+        img.set_data(arr)
+
+    fig, ax = plt.subplots(1, 1)
+    #fig = plt.figure(2)
+    arr = get_matrix()
+    img = plt.imshow(arr, cmap='gist_gray_r', vmin=0, vmax=255)
+    ani = FuncAnimation(fig, update, init_func=init, blit=False, interval=50)
+    plt.show()
+
+    input()
+    return ani
+
+
+if __name__ == '__main__':
+    start_animation()
+

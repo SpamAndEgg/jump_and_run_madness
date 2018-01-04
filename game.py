@@ -3,6 +3,7 @@ import time
 import random
 from math import floor
 from init_convolution import convolution
+import visualisation
 
 import threading
 
@@ -18,11 +19,11 @@ display_width = 800
 display_height = 600
 # Constants depending on screen size.
 speed_run = display_width / 50
-speed_jump = display_height /15
+speed_jump = display_height / 15
 
 # Define gravity [pixel per frame]
-gravity = display_height/100
-max_fall_velocity = display_height/25
+gravity = display_height / 100
+max_fall_velocity = display_height / 25
 this_frame = []
 
 # Setup window to display game (width, height).
@@ -275,19 +276,6 @@ class Level:
 
     # Give back the active ground that is displayed on the next frame (according to the player location).
     def update_ground(self):
-        # Check each ground element if it lies within the camera frame plus max. camera velocity (so each element for
-        # the next frame is given out).
-
-        # this_ground = []
-        # for i_ground in self.ground:
-        #     # Check, if left edge of floor is not out of the right side of the camera and right edge of floor is not
-        #     # out of the left side of the camera.
-        #     left_ok = i_ground[0] + i_ground[2] > camera.left_edge
-        #     right_ok = i_ground[0] < camera.right_edge
-        #     if left_ok and right_ok:
-        #         this_ground.append(i_ground)
-        #
-        # self.active_ground = this_ground
 
         # PROBLEM: Ground elements are only dependant of character vision, enemies are not effected. Therefore the whole
         # gound is given back as active ground
@@ -345,16 +333,48 @@ pygame.display.set_caption('Test Game')
 # Handles frames per seconds (defined later on).
 clock = pygame.time.Clock()
 
-# if create_output:
-#     # Initiate the first image convolution
-#     this_frame = pygame.surfarray.array2d(Game_display)
-#     # calculate an input for the neural net by the kernel.
-#     this_conv_frame = convolution(this_frame)
-#     # Visualize the input convolution.
-#     img = visualisation.start(this_conv_frame)
+
+if create_output:
+
+    import threading
+
+    class VisualConvolutionThread(threading.Thread):
+
+        def run(self):
+            # Set up the animation window which will be updated every "interval_time" miliseconds.
+            interval_time = 50
+            def start_animation():
+                global this_conv_frame
+                import matplotlib.pyplot as plt
+                from matplotlib.animation import FuncAnimation
+
+                def update(frame):
+                    img.set_data(this_conv_frame)
+
+                def init():
+                    img.set_data(this_conv_frame)
+
+                fig, ax = plt.subplots(1, 1)
+                img = ax.imshow(this_conv_frame, cmap='gist_gray_r', vmin=0, vmax=33488638)
+                ani = FuncAnimation(fig, update, init_func=init, blit=False, interval=interval_time)
+                plt.show()
+                #input()
+                return ani
+
+
+            # Initiate the first image convolution
+            this_frame = pygame.surfarray.array2d(Game_display)
+            # calculate an input for the neural net by the kernel.
+            this_conv_frame = convolution(this_frame)
+            # Visualize the input convolution.
+            ani = start_animation()
+
+    visual_convolution = VisualConvolutionThread()
+    visual_convolution.start()
+
 
 def game_loop():
-    global player, level, monster, camera, this_frame
+    global player, level, monster, camera, this_frame, this_conv_frame
     # Initiate the level.
     level = Level()
     # Add a ground to the level
@@ -474,20 +494,16 @@ def game_loop():
         pygame.display.update()
 
         if create_output:
-            # Get the current frame as array.
+            # Copy the current frame as array.
+            # Note that array2d will temporarily copy lock the screen while raw pixels are copied into array.
+
             this_frame = pygame.surfarray.array2d(Game_display)
-        #     # Get the current frame as array.
-        #     this_frame = pygame.surfarray.pixels2d(Game_display)
-        #     #this_frame = np.zeros((800,600))
-        #     # calculate an input for the neural net by the kernel.
-        #     this_conv_frame = convolution(this_frame)
-        #
-        #
-        #     img.set_data(this_conv_frame)
-        #
-        #     del this_frame
-        #     # Update the convolutional image.
-        #     #visualisation.update(img, img_ax, this_conv_frame)
+
+            #this_frame = np.zeros((800,600))
+            # calculate an input for the neural net by the kernel.
+            this_conv_frame = convolution(this_frame)
+
+            # IMPLEMENT CONVOLUTION VISUALIZATION HERE
 
 
         # Define frames per seckond.
