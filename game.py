@@ -1,12 +1,10 @@
 import pygame
 import time
 import random
+import numpy as np
+import global_var
 from math import floor
 from init_convolution import convolution
-import visualisation
-
-import threading
-
 
 # SET OF AN OUTPUT FOR THE CONVOLUTIONAL NEURAL NETWORK IS SUPPOSED TO BE GIVEN OUT.
 create_output = True
@@ -24,7 +22,6 @@ speed_jump = display_height / 15
 # Define gravity [pixel per frame]
 gravity = display_height / 100
 max_fall_velocity = display_height / 25
-this_frame = []
 
 # Setup window to display game (width, height).
 Game_display = pygame.display.set_mode((display_width, display_height))
@@ -336,41 +333,18 @@ clock = pygame.time.Clock()
 
 if create_output:
 
-    import threading
+    # Initiate the first image convolution
+    this_frame = pygame.surfarray.array2d(Game_display)
+    # calculate an input for the neural net by the kernel.
+    global_var.this_conv_frame = convolution(this_frame, max_pixel_value=global_var.max_pixel_value,
+                                  convolution_type=global_var.convolution_type)
 
-    class VisualConvolutionThread(threading.Thread):
-
-        def run(self):
-            # Set up the animation window which will be updated every "interval_time" miliseconds.
-            interval_time = 50
-            def start_animation():
-                global this_conv_frame
-                import matplotlib.pyplot as plt
-                from matplotlib.animation import FuncAnimation
-
-                def update(frame):
-                    img.set_data(this_conv_frame)
-
-                def init():
-                    img.set_data(this_conv_frame)
-
-                fig, ax = plt.subplots(1, 1)
-                img = ax.imshow(this_conv_frame, cmap='gist_gray_r', vmin=0, vmax=33488638)
-                ani = FuncAnimation(fig, update, init_func=init, blit=False, interval=interval_time)
-                plt.show()
-                #input()
-                return ani
+    import visualize_convolution
 
 
-            # Initiate the first image convolution
-            this_frame = pygame.surfarray.array2d(Game_display)
-            # calculate an input for the neural net by the kernel.
-            this_conv_frame = convolution(this_frame)
-            # Visualize the input convolution.
-            ani = start_animation()
 
-    visual_convolution = VisualConvolutionThread()
-    visual_convolution.start()
+
+
 
 
 def game_loop():
@@ -496,12 +470,13 @@ def game_loop():
         if create_output:
             # Copy the current frame as array.
             # Note that array2d will temporarily copy lock the screen while raw pixels are copied into array.
-
+            # "this_frame" is an array of the size of the screen. each pixel contains a mapped color value.
+            # Thus here for RGB with 8 bit for each color value, each pixel contains a value between 0 and 16777215.
+            # (2^8*2^8*2^8 = 16777216)
             this_frame = pygame.surfarray.array2d(Game_display)
-
-            #this_frame = np.zeros((800,600))
-            # calculate an input for the neural net by the kernel.
-            this_conv_frame = convolution(this_frame)
+            # calculate an input for the neural net by the kernel by convoluting the current frame.
+            global_var.this_conv_frame = convolution(this_frame, max_pixel_value=global_var.max_pixel_value,
+                                          convolution_type=global_var.convolution_type)
 
             # IMPLEMENT CONVOLUTION VISUALIZATION HERE
 
@@ -514,43 +489,5 @@ game_loop()
 # Uninitiate pygame.
 pygame.quit()
 quit()
-
-
-class VisualizeConvolutionThread(threading.Thread):
-    def run(self):
-        global this_frame
-        import visualisation
-        # Initiate the first image convolution
-        #this_frame = pygame.surfarray.array2d(Game_display)
-        # Wait until "this_frame" was defined by game thread.
-        defined_this_frame = False
-        while not defined_this_frame:
-            if this_frame.any():
-                defined_this_frame = True
-            else:
-                time.sleep(0.1)
-
-        # calculate an input for the neural net by the kernel.
-        this_conv_frame = convolution(this_frame)
-        # Delete the frame to set it free.
-        #del this_frame
-        # Visualize the input convolution.
-        img = visualisation.start(this_conv_frame)
-
-        while True:
-
-            # Get the current frame as array.
-            #this_frame = pygame.surfarray.array2d(Game_display)
-            #this_frame = np.zeros((800,600))
-            # calculate an input for the neural net by the kernel.
-            this_conv_frame = convolution(this_frame)
-
-            img.set_data(this_conv_frame)
-
-            del this_frame
-            # Update the convolutional image.
-            #visualisation.update(img, img_ax, this_conv_frame)
-            time.sleep(0.1)
-
 
 
