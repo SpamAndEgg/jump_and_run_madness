@@ -5,6 +5,8 @@ this__conv_frame = []
 max_pixel_value = 16777215
 # Define ratio of convoluted picture.
 convolution_type = 'square'
+# The score of the game
+game_score = 0
 
 
 

@@ -460,11 +460,12 @@ def game_loop():
             i_monster.draw()
 
         # Update game score.
-        game_score = player.x_pos_max - x_character + level.score
-        display_game_score(floor(game_score))
+        global_var.game_score = player.x_pos_max - x_character + level.score
+        display_game_score(floor(global_var.game_score))
 
         # Show new frame on screen. update allows to update single parameters if given as input parameters, otherwise it
-        # updates the whole screen. Alternatively you could use the flip function, which always updates the whole screen.
+        # updates the whole screen. Alternatively you could use the flip function, which always updates the whole
+        # screen.
         pygame.display.update()
 
         if create_output:

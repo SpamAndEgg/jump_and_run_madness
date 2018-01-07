@@ -3,6 +3,7 @@
 import threading
 import numpy as np
 import global_var
+from math import floor
 
 
 # This thread visualizes the convolution of the game screen.
@@ -17,11 +18,13 @@ class VisualConvolutionThread(threading.Thread):
 
             def update(frame):
                 img.set_data(np.transpose(global_var.this_conv_frame))
+                plt.setp(title_obj, text='Game score: '+str(floor(global_var.game_score)))
 
             def init():
                 img.set_data(np.transpose(global_var.this_conv_frame))
 
             fig, ax = plt.subplots(1, 1)
+            title_obj = plt.title('Game score: 0')
 
             img = ax.imshow(np.transpose(global_var.this_conv_frame), cmap='gist_gray_r', vmin=0, vmax=1)
             # Start the animation of the convoluted frame (interval time in milliseconds).
