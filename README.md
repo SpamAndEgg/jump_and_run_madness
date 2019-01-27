@@ -8,9 +8,9 @@ To start the game, just run the main.py.
 ## Screenshots
 The game looks like this:
 
-![alt text](https://github.com/SpamAndEgg/jump_and_run_madness/blob/master/image/test_img/jnr_screenshot.PNG)
+<img src="https://github.com/SpamAndEgg/jump_and_run_madness/blob/master/image/test_img/jnr_screenshot.PNG" width="500">
 
 
 The convolution of the same frame looks like this:
 
-![alt text](https://github.com/SpamAndEgg/jump_and_run_madness/blob/master/image/test_img/jnr_convolution_screenshot.PNG)
+<img src="https://github.com/SpamAndEgg/jump_and_run_madness/blob/master/image/test_img/jnr_convolution_screenshot.PNG" width="500">
